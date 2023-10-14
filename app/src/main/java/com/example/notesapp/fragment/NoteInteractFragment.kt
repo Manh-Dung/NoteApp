@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,7 +42,7 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
 
     private val contract = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
         binding.imageView.setImageURI(it)
-        binding.imageView.tag = it.toString();
+        binding.imageView.tag = it.toString()
 
         val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -109,45 +108,84 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
         }
     }
 
-
     override fun onDestroyView() {
         super.onDestroyView()
         fragmentViewModel.setSharedData("Waiting")
     }
 
+//    private fun checkNewNote() {
+//        val selectedNote = arguments?.parcelable("selectedNote") as? Notes
+//        if (selectedNote != null) {
+//            binding.titleTxt.setText(selectedNote.title)
+//            binding.dateTimeTxt.text = selectedNote.dateTime
+//            if (selectedNote.subTitle != "") {
+//                binding.subTitleTxt.setText(selectedNote.subTitle)
+//            }
+//            binding.textTxt.setText(selectedNote.text)
+//
+//            val colorDrawable = ColorDrawable(Color.parseColor(selectedNote.color))
+//            binding.noteBackground.background = colorDrawable
+//
+//            if (selectedNote.link != "") {
+//                binding.urlLayout.visibility = View.VISIBLE
+//                binding.urlTxt.text = selectedNote.link
+//            }
+//            if (selectedNote.image != "") {
+//                binding.imageLayout.visibility = View.VISIBLE
+//                binding.imageView.setImageURI(selectedNote.image.toUri())
+//            }
+//            fragmentViewModel.setDeleteConfirm(false)
+//        } else {
+//            val format = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+//            val curTime = format.format(Date())
+//            binding.dateTimeTxt.text = curTime
+//            fragmentViewModel.setDeleteConfirm(true)
+//        }
+//
+//        binding.confirmBtn.setOnClickListener {
+//            if (selectedNote != null) {
+//                updateNote(selectedNote)
+//            } else {
+//                insertNote()
+//            }
+//        }
+//
+//        fragmentViewModel.sharedData.observe(viewLifecycleOwner) {
+//            if (it == "Confirm") {
+//                deleteNote(selectedNote)
+//            }
+//        }
+//    }
+
     private fun checkNewNote() {
         val selectedNote = arguments?.parcelable("selectedNote") as? Notes
-        if (selectedNote != null) {
-            binding.titleTxt.setText(selectedNote.title)
-            binding.dateTimeTxt.text = selectedNote.dateTime
-            binding.subTitleTxt.setText(selectedNote.subTitle)
-            binding.textTxt.setText(selectedNote.text)
 
-            val colorDrawable = ColorDrawable(Color.parseColor(selectedNote.color))
-            binding.noteBackground.background = colorDrawable
+        selectedNote?.let { note ->
+            with(binding) {
+                titleTxt.setText(note.title)
+                dateTimeTxt.text = note.dateTime
+                subTitleTxt.setText(note.subTitle.takeIf { it.isNotEmpty() })
+                textTxt.setText(note.text)
 
-            if (selectedNote.link != "") {
-                binding.urlLayout.visibility = View.VISIBLE
-                binding.urlTxt.text = selectedNote.link
+                noteBackground.background = ColorDrawable(Color.parseColor(note.color))
+
+                urlLayout.visibility = if (note.link.isNotEmpty()) View.VISIBLE else View.GONE
+                urlTxt.text = note.link
+
+                imageLayout.visibility = if (note.image.isNotEmpty()) View.VISIBLE else View.GONE
+                imageView.setImageURI(note.image.toUri())
             }
-            if (selectedNote.image != "") {
-                binding.imageLayout.visibility = View.VISIBLE
-                binding.imageView.setImageURI(selectedNote.image.toUri())
-            }
+
             fragmentViewModel.setDeleteConfirm(false)
-        } else {
+
+            binding.confirmBtn.setOnClickListener { updateNote(note) }
+        } ?: run {
             val format = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
             val curTime = format.format(Date())
             binding.dateTimeTxt.text = curTime
             fragmentViewModel.setDeleteConfirm(true)
-        }
 
-        binding.confirmBtn.setOnClickListener {
-            if (selectedNote != null) {
-                updateNote(selectedNote)
-            } else {
-                insertNote()
-            }
+            binding.confirmBtn.setOnClickListener { insertNote() }
         }
 
         fragmentViewModel.sharedData.observe(viewLifecycleOwner) {
@@ -158,16 +196,14 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
     }
 
     private fun checkInsertImage() {
-        val checkInsertImg = arguments?.getString("insertImage").toBoolean()
-        if (checkInsertImg) {
+        arguments?.getString("insertImage")?.toBoolean()?.let {
             contract.launch(arrayOf("image/*"))
             binding.imageLayout.visibility = View.VISIBLE
         }
     }
 
     private fun checkInsertURL() {
-        val url = arguments?.getString("insertURL")
-        if (url != null) {
+        arguments?.getString("insertURL")?.let { url ->
             binding.urlLayout.visibility = View.VISIBLE
             binding.urlTxt.text = url
         }
@@ -178,24 +214,23 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
         val subTitle = binding.subTitleTxt.text.toString()
         val dateTime = binding.dateTimeTxt.text.toString()
         val text = binding.textTxt.text.toString()
-        var color = "#3F3F3F"
-        fragmentViewModel.color.observe(viewLifecycleOwner) {
-            color = it
-        }
-
-        val uri = if (binding.imageLayout.visibility == View.VISIBLE) {
-            binding.imageView.tag.toString()
-        } else {
-            ""
-        }
-
-        val url: String = if (binding.urlLayout.visibility == View.VISIBLE) {
-            binding.urlTxt.text.toString()
-        } else {
-            ""
-        }
 
         if (inputCheck(title) && inputCheck(text)) {
+            var color = "#3F3F3F"
+            fragmentViewModel.color.observe(viewLifecycleOwner) { color = it }
+
+            val uri = if (binding.imageLayout.visibility == View.VISIBLE) {
+                binding.imageView.tag.toString()
+            } else {
+                ""
+            }
+
+            val url: String = if (binding.urlLayout.visibility == View.VISIBLE) {
+                binding.urlTxt.text.toString()
+            } else {
+                ""
+            }
+
             val notes = Notes(
                 null,
                 title,
@@ -216,74 +251,74 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
                     requireContext(),
                     "Please fill out the Title field!",
                     Toast.LENGTH_LONG
-                )
-                    .show()
+                ).show()
             }
             if (!inputCheck(text)) {
                 Toast.makeText(
                     requireContext(),
                     "Please fill out the Text field!",
                     Toast.LENGTH_LONG
-                )
-                    .show()
+                ).show()
             }
         }
     }
 
     private fun updateNote(notes: Notes?) {
-        val format = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-        val curTime = format.format(Date())
-        binding.dateTimeTxt.text = curTime
+        notes?.let { note ->
+            val format = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
+            val curTime = format.format(Date())
+            binding.dateTimeTxt.text = curTime
 
-        fragmentViewModel.color.observe(viewLifecycleOwner) {
-            notes?.color = it
-        }
+            note.title = binding.titleTxt.text.toString()
+            note.subTitle = binding.subTitleTxt.text.toString()
 
-        notes?.title = binding.titleTxt.text.toString()
-        notes?.subTitle = binding.subTitleTxt.text.toString()
-        notes?.dateTime = binding.dateTimeTxt.text.toString()
-        notes?.text = binding.textTxt.text.toString()
-        notes?.image = if (binding.imageLayout.visibility == View.VISIBLE) {
-            Log.v("cakkkkk", "${binding.imageView.tag.toString()}")
-            binding.imageView.tag.toString()
-        } else {
-            ""
-        }
+            note.dateTime = binding.dateTimeTxt.text.toString()
+            note.text = binding.textTxt.text.toString()
 
-        notes?.link = if (binding.urlLayout.visibility == View.VISIBLE) {
-            binding.urlTxt.text.toString()
-
-        } else {
-            ""
-        }
-
-        if (inputCheck(binding.titleTxt.text.toString()) && inputCheck(binding.textTxt.text.toString())) {
-            noteViewModel.updateNote(notes)
-            Toast.makeText(requireContext(), "Updated ", Toast.LENGTH_LONG).show()
-            replaceFragment(HomeFragment.newInstance())
-        } else {
-            if (!inputCheck(binding.titleTxt.text.toString())) {
-                Toast.makeText(
-                    requireContext(),
-                    "Please fill out the Title field!",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+            note.image = if (binding.imageLayout.visibility == View.VISIBLE) {
+                binding.imageView.tag.toString()
+            } else {
+                ""
             }
-            if (!inputCheck(binding.textTxt.text.toString())) {
-                Toast.makeText(
-                    requireContext(),
-                    "Please fill out the Text field!",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+
+            note.link = if (binding.urlLayout.visibility == View.VISIBLE) {
+                binding.urlTxt.text.toString()
+            } else {
+                ""
+            }
+
+            fragmentViewModel.color.observe(viewLifecycleOwner) { note.color = it }
+
+            if (inputCheck(binding.titleTxt.text.toString()) && inputCheck(binding.textTxt.text.toString())) {
+                noteViewModel.updateNote(note)
+                Toast.makeText(requireContext(), "Updated ", Toast.LENGTH_LONG).show()
+                replaceFragment(HomeFragment.newInstance())
+            } else {
+                if (!inputCheck(binding.titleTxt.text.toString())) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please fill out the Title field!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                if (!inputCheck(binding.textTxt.text.toString())) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Please fill out the Text field!",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         }
     }
 
     private fun deleteNote(notes: Notes?) {
         noteViewModel.deleteNote(notes)
-        Toast.makeText(requireContext(), "Deleted ", Toast.LENGTH_LONG).show()
+        Toast.makeText(
+            requireContext(),
+            "Deleted ",
+            Toast.LENGTH_LONG
+        ).show()
         replaceFragment(HomeFragment.newInstance())
     }
 
@@ -292,15 +327,15 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
     }
 
     private fun replaceFragment(fragment: Fragment) {
-        val fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
-
-        fragmentTransaction.setCustomAnimations(
-            android.R.anim.slide_out_right,
-            android.R.anim.slide_in_left
-        )
-        fragmentTransaction.replace(R.id.frameLayout, fragment)
-            .addToBackStack(fragment.javaClass.simpleName)
-            .commit()
+        requireActivity().supportFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left
+            )
+            replace(R.id.frameLayout, fragment)
+            disallowAddToBackStack()
+            commit()
+        }
     }
 
     private inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? = when {
@@ -309,39 +344,35 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
     }
 
     override fun onAddUrlBtnClick() {
-        val inflater = requireActivity().layoutInflater
-        val urlDialogView = inflater.inflate(R.layout.add_url_dialog, null, false)
+        val urlDialogView =
+            requireActivity().layoutInflater.inflate(R.layout.add_url_dialog, null, false)
 
-        val cancelBtn: TextView = urlDialogView.findViewById<TextView>(R.id.cancelBtn)
-        val confirmAddUrlBtn: TextView = urlDialogView.findViewById<TextView>(R.id.confirmAddUrlBtn)
-        val urlDialogTxt: EditText = urlDialogView.findViewById<EditText>(R.id.urlDialogTxt)
+        val dialog = Dialog(requireActivity()).apply {
+            setContentView(urlDialogView)
+            setCancelable(true)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
 
-        val dialog = Dialog(requireActivity())
-        dialog.setContentView(urlDialogView)
-
-        dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-
-        dialog.show()
-
-        cancelBtn.setOnClickListener {
+        urlDialogView.findViewById<TextView>(R.id.cancelBtn).setOnClickListener {
             dialog.dismiss()
         }
 
-        confirmAddUrlBtn.setOnClickListener {
-            val url = urlDialogTxt.text.toString()
+        urlDialogView.findViewById<TextView>(R.id.confirmAddUrlBtn).setOnClickListener {
+            val url = urlDialogView.findViewById<EditText>(R.id.urlDialogTxt).text.toString()
             if (!url.contains(".")) {
                 Toast.makeText(requireContext(), "Invalid URL! ", Toast.LENGTH_LONG).show()
             } else {
-                binding.urlTxt.setText(url)
+                binding.urlTxt.text = url
                 dialog.dismiss()
             }
             binding.urlLayout.visibility = View.VISIBLE
         }
+
+        dialog.show()
     }
 
     override fun onAddImageBtnClick() {

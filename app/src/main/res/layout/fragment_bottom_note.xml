@@ -50,8 +50,8 @@
             android:layout_marginStart="10dp">
 
             <View
-                android:layout_width="30dp"
                 android:id="@+id/yellowBackground"
+                android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:background="@drawable/yellow_note" />
 

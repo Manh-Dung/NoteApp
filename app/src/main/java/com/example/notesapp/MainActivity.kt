@@ -22,9 +22,18 @@ class MainActivity : AppCompatActivity() {
             android.R.anim.slide_in_left
         )
         fragmentTransaction.replace(R.id.frameLayout, fragment)
-            .addToBackStack(null)
+            .disallowAddToBackStack()
             .commit()
+    }
 
+    override fun onBackPressed() {
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.frameLayout)
+
+        if (currentFragment is HomeFragment) {
+            finish() // Thoát khỏi ứng dụng
+        } else {
+            super.onBackPressed() // Cho phép hệ thống xử lý sự kiện
+        }
     }
 
 }

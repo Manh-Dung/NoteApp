@@ -8,9 +8,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import com.example.notesapp.R
 import com.example.notesapp.data.FragmentViewModel
-import com.example.notesapp.databinding.DeleteAlertDialogBinding
 import com.example.notesapp.databinding.FragmentBottomNoteBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -23,13 +24,9 @@ class NoteBottomSheet : BottomSheetDialogFragment() {
 
     var buttonClickListener: ButtonClickListener? = null
 
-    private var _bindingBottom: FragmentBottomNoteBinding? = null
-    private val bindingBottom
-        get() = _bindingBottom!!
-
-    private var _bindingDelete: DeleteAlertDialogBinding? = null
-    private val bindingDelete
-        get() = _bindingDelete!!
+    private var _binding: FragmentBottomNoteBinding? = null
+    private val binding
+        get() = _binding!!
 
     private val fragmentViewModel: FragmentViewModel by lazy {
         ViewModelProvider(requireActivity())[FragmentViewModel::class.java]
@@ -46,36 +43,29 @@ class NoteBottomSheet : BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         val inflater = requireActivity().layoutInflater
-        _bindingBottom = FragmentBottomNoteBinding.inflate(inflater, null, false)
+        _binding = FragmentBottomNoteBinding.inflate(inflater, null, false)
 
-        return bindingBottom.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        bindingBottom.deleteBtn.setOnClickListener {
-            openDeleteDialog()
-        }
-
-        bindingBottom.closeBottomSheetBtn.setOnClickListener {
-            dismiss()
-        }
-
-        bindingBottom.addImageBtn.setOnClickListener {
-            buttonClickListener?.onAddImageBtnClick()
-            dismiss()
-        }
-
-        bindingBottom.addURLBtn.setOnClickListener {
-            buttonClickListener?.onAddUrlBtnClick()
-            dismiss()
+        with(binding) {
+            deleteBtn.setOnClickListener { openDeleteDialog() }
+            closeBottomSheetBtn.setOnClickListener { dismiss() }
+            addImageBtn.setOnClickListener {
+                buttonClickListener?.onAddImageBtnClick()
+                dismiss()
+            }
+            addURLBtn.setOnClickListener {
+                buttonClickListener?.onAddUrlBtnClick()
+                dismiss()
+            }
         }
 
         fragmentViewModel.deleteConfirm.observe(viewLifecycleOwner) {
-            if (it == true) {
-                bindingBottom.deleteBtn.isEnabled = false
-            }
+            binding.deleteBtn.isEnabled = !it
         }
 
         selectColor()
@@ -83,91 +73,47 @@ class NoteBottomSheet : BottomSheetDialogFragment() {
 
 
     private fun openDeleteDialog() {
-        val inflater = requireActivity().layoutInflater
-        _bindingDelete = DeleteAlertDialogBinding.inflate(inflater, null, false)
-        val view = bindingDelete.root
+        val view =
+            requireActivity().layoutInflater.inflate(R.layout.delete_alert_dialog, null, false)
 
-        val dialog = Dialog(requireActivity())
-        dialog.setContentView(view)
-
-        dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-
-        dialog.show()
-
-        bindingDelete.cancelBtn.setOnClickListener {
-            dialog.dismiss()
+        val dialog = Dialog(requireActivity()).apply {
+            setContentView(view)
+            setCancelable(true)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
         }
 
-        bindingDelete.deleteBtn.setOnClickListener {
+        view.findViewById<TextView>(R.id.cancelBtn).setOnClickListener { dialog.dismiss() }
+        view.findViewById<TextView>(R.id.deleteBtn).setOnClickListener {
             fragmentViewModel.setSharedData("Confirm")
             dialog.dismiss()
         }
+
+        dialog.show()
     }
 
     private fun selectColor() {
-        bindingBottom.grayBtn.setOnClickListener {
-            bindingBottom.checkGrayBtn.visibility = View.VISIBLE
-            bindingBottom.checkBlueBtn.visibility = View.GONE
-            bindingBottom.checkGreenBtn.visibility = View.GONE
-            bindingBottom.checkYellowBtn.visibility = View.GONE
-            bindingBottom.checkRedBtn.visibility = View.GONE
+        val colorButtons = mapOf(
+            binding.grayBtn to Pair(binding.checkGrayBtn, "#3F3F3F"),
+            binding.redBtn to Pair(binding.checkRedBtn, "#EF5350"),
+            binding.blueBtn to Pair(binding.checkBlueBtn, "#2396EF"),
+            binding.yellowBtn to Pair(binding.checkYellowBtn, "#FFC30C"),
+            binding.greenBtn to Pair(binding.checkGreenBtn, "#4AB050")
+        )
 
-            val result = "#3F3F3F"
-            fragmentViewModel.setColor(result)
-            dialog?.dismiss()
-        }
+        val checkButtons = colorButtons.values.map { it.first }
 
-        bindingBottom.redBtn.setOnClickListener {
-            bindingBottom.checkRedBtn.visibility = View.VISIBLE
-            bindingBottom.checkBlueBtn.visibility = View.GONE
-            bindingBottom.checkGreenBtn.visibility = View.GONE
-            bindingBottom.checkYellowBtn.visibility = View.GONE
-            bindingBottom.checkGrayBtn.visibility = View.GONE
-
-            val result = "#EF5350"
-            fragmentViewModel.setColor(result)
-            dialog?.dismiss()
-        }
-
-        bindingBottom.blueBtn.setOnClickListener {
-            bindingBottom.checkBlueBtn.visibility = View.VISIBLE
-            bindingBottom.checkGrayBtn.visibility = View.GONE
-            bindingBottom.checkGreenBtn.visibility = View.GONE
-            bindingBottom.checkYellowBtn.visibility = View.GONE
-            bindingBottom.checkRedBtn.visibility = View.GONE
-
-            val result = "#2396EF"
-            fragmentViewModel.setColor(result)
-            dialog?.dismiss()
-        }
-
-        bindingBottom.yellowBtn.setOnClickListener {
-            bindingBottom.checkYellowBtn.visibility = View.VISIBLE
-            bindingBottom.checkBlueBtn.visibility = View.GONE
-            bindingBottom.checkGreenBtn.visibility = View.GONE
-            bindingBottom.checkGrayBtn.visibility = View.GONE
-            bindingBottom.checkRedBtn.visibility = View.GONE
-
-            val result = "#FFC30C"
-            fragmentViewModel.setColor(result)
-            dialog?.dismiss()
-        }
-
-        bindingBottom.greenBtn.setOnClickListener {
-            bindingBottom.checkGreenBtn.visibility = View.VISIBLE
-            bindingBottom.checkBlueBtn.visibility = View.GONE
-            bindingBottom.checkGrayBtn.visibility = View.GONE
-            bindingBottom.checkYellowBtn.visibility = View.GONE
-            bindingBottom.checkRedBtn.visibility = View.GONE
-
-            val result = "#4AB050"
-            fragmentViewModel.setColor(result)
-            dialog?.dismiss()
+        colorButtons.forEach { (colorButton, pair) ->
+            val (checkButton, color) = pair
+            colorButton.setOnClickListener {
+                checkButtons.forEach { it.visibility = View.GONE }
+                checkButton.visibility = View.VISIBLE
+                fragmentViewModel.setColor(color)
+                dialog?.dismiss()
+            }
         }
     }
 }

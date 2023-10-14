@@ -44,7 +44,6 @@ class NoteAdapter(private val onItemClick: (Notes) -> Unit) :
         holder.timeItem.text = note.dateTime
         if (note.image == "") {
             holder.imageItem.visibility = View.GONE
-
         } else {
             holder.imageItem.setImageURI(note.image.toUri())
         }
