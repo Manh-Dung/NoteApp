@@ -99,10 +99,12 @@ class HomeFragment : Fragment() {
             })
 
             searchView.setOnCloseListener {
+                searchView.clearFocus()
                 notesLoad(null, noteInit())
                 true
             }
         }
+
     }
 
     override fun onDestroyView() {
@@ -193,5 +195,3 @@ class HomeFragment : Fragment() {
         dialog.show()
     }
 }
-
-

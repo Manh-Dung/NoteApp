@@ -113,50 +113,6 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
         fragmentViewModel.setSharedData("Waiting")
     }
 
-//    private fun checkNewNote() {
-//        val selectedNote = arguments?.parcelable("selectedNote") as? Notes
-//        if (selectedNote != null) {
-//            binding.titleTxt.setText(selectedNote.title)
-//            binding.dateTimeTxt.text = selectedNote.dateTime
-//            if (selectedNote.subTitle != "") {
-//                binding.subTitleTxt.setText(selectedNote.subTitle)
-//            }
-//            binding.textTxt.setText(selectedNote.text)
-//
-//            val colorDrawable = ColorDrawable(Color.parseColor(selectedNote.color))
-//            binding.noteBackground.background = colorDrawable
-//
-//            if (selectedNote.link != "") {
-//                binding.urlLayout.visibility = View.VISIBLE
-//                binding.urlTxt.text = selectedNote.link
-//            }
-//            if (selectedNote.image != "") {
-//                binding.imageLayout.visibility = View.VISIBLE
-//                binding.imageView.setImageURI(selectedNote.image.toUri())
-//            }
-//            fragmentViewModel.setDeleteConfirm(false)
-//        } else {
-//            val format = SimpleDateFormat("dd/M/yyyy hh:mm:ss")
-//            val curTime = format.format(Date())
-//            binding.dateTimeTxt.text = curTime
-//            fragmentViewModel.setDeleteConfirm(true)
-//        }
-//
-//        binding.confirmBtn.setOnClickListener {
-//            if (selectedNote != null) {
-//                updateNote(selectedNote)
-//            } else {
-//                insertNote()
-//            }
-//        }
-//
-//        fragmentViewModel.sharedData.observe(viewLifecycleOwner) {
-//            if (it == "Confirm") {
-//                deleteNote(selectedNote)
-//            }
-//        }
-//    }
-
     private fun checkNewNote() {
         val selectedNote = arguments?.parcelable("selectedNote") as? Notes
 
@@ -371,7 +327,6 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
             }
             binding.urlLayout.visibility = View.VISIBLE
         }
-
         dialog.show()
     }
 
