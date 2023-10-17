@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,6 +46,7 @@ class HomeFragment : Fragment() {
         val view = binding.root
 
         notesLoad(null, noteInit())
+        Log.v("CAKKCKC", "cak")
         return view
     }
 
@@ -128,10 +130,14 @@ class HomeFragment : Fragment() {
         if (key == null) {
             noteViewModel.getAllNotes.observe(viewLifecycleOwner) {
                 adapter.updateData(it)
+                Log.v("CAKKCKC", "133")
+
             }
         } else {
             noteViewModel.searchDatabase(key).observe(viewLifecycleOwner) { notes ->
                 adapter.updateData(notes)
+                Log.v("CAKKCKC", "139")
+
             }
         }
     }

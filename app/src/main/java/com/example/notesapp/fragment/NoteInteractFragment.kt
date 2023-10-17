@@ -8,6 +8,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.UnderlineSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -130,6 +134,7 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
 
                 imageLayout.visibility = if (note.image.isNotEmpty()) View.VISIBLE else View.GONE
                 imageView.setImageURI(note.image.toUri())
+                imageView.tag = note.image
             }
 
             fragmentViewModel.setDeleteConfirm(false)
@@ -161,7 +166,15 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
     private fun checkInsertURL() {
         arguments?.getString("insertURL")?.let { url ->
             binding.urlLayout.visibility = View.VISIBLE
-            binding.urlTxt.text = url
+            val spannableString = SpannableString(url)
+
+            val underlineSpan = UnderlineSpan()
+            spannableString.setSpan(underlineSpan, 0, url.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            val colorSpan = ForegroundColorSpan(Color.RED)
+            spannableString.setSpan(colorSpan, 0, url.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+            binding.urlTxt.text = spannableString
         }
     }
 

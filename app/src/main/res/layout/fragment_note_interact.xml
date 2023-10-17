@@ -48,6 +48,8 @@
                 android:fontFamily="serif-monospace"
                 android:hint="Note Title"
                 android:inputType="text"
+                android:allowUndo="false"
+                android:cursorVisible="true"
                 android:maxLines="1"
                 android:padding="10dp"
                 android:textColor="@color/text"
