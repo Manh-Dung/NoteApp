@@ -42,16 +42,13 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val view = binding.root
+        notesLoad(null, noteInit())
 
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        notesLoad(null, noteInit())
-
 
         binding.apply {
             floatingActionButton.setOnClickListener {
@@ -128,12 +125,12 @@ class HomeFragment : Fragment() {
 
     private fun notesLoad(key: String?, adapter: NoteAdapter) {
         if (key == null) {
-            noteViewModel.getAllNotes.observe(viewLifecycleOwner) {
+            noteViewModel.getAllNotes.observe(requireActivity()) {
                 adapter.updateData(it)
             }
         } else {
-            noteViewModel.searchDatabase(key).observe(viewLifecycleOwner) { notes ->
-                adapter.updateData(notes)
+            noteViewModel.searchDatabase(key).observe(requireActivity()) {
+                adapter.updateData(it)
             }
         }
     }
