@@ -301,7 +301,7 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left
             )
-            replace(R.id.frameLayout, fragment)
+            add(R.id.frameLayout, fragment)
             disallowAddToBackStack()
             commit()
         }

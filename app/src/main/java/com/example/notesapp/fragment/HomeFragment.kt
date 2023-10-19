@@ -4,7 +4,6 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -45,13 +44,14 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        notesLoad(null, noteInit())
-        Log.v("CAKKCKC", "cak")
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        notesLoad(null, noteInit())
+
 
         binding.apply {
             floatingActionButton.setOnClickListener {
@@ -130,14 +130,10 @@ class HomeFragment : Fragment() {
         if (key == null) {
             noteViewModel.getAllNotes.observe(viewLifecycleOwner) {
                 adapter.updateData(it)
-                Log.v("CAKKCKC", "133")
-
             }
         } else {
             noteViewModel.searchDatabase(key).observe(viewLifecycleOwner) { notes ->
                 adapter.updateData(notes)
-                Log.v("CAKKCKC", "139")
-
             }
         }
     }
@@ -159,7 +155,7 @@ class HomeFragment : Fragment() {
                 android.R.anim.slide_out_right,
                 android.R.anim.slide_in_left
             )
-            replace(R.id.frameLayout, fragment)
+            add(R.id.frameLayout, fragment)
             addToBackStack(fragment.javaClass.simpleName)
             commit()
         }
