@@ -11,7 +11,7 @@
         android:id="@+id/txtTittle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="monospace"
+        android:fontFamily="@font/immono10_regular"
         android:paddingStart="10sp"
         android:paddingTop="10sp"
         android:paddingEnd="10sp"

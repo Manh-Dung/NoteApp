@@ -67,6 +67,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.1")
     annotationProcessor("com.github.bumptech.glide:compiler:4.13.0")
     implementation("androidx.activity:activity:1.7.0-beta02")
+
     val fragment_version = "1.6.1"
 
     // Java language implementation
