@@ -79,8 +79,6 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
         checkInsertImage()
         checkInsertURL()
 
-
-
         binding.backBtn.setOnClickListener {
             replaceFragment(HomeFragment.newInstance())
         }

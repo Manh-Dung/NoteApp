@@ -12,4 +12,7 @@
     <color name="addBtn">#FFE933</color>
     <color name="text">#ABABAB</color>
     <color name="gray">#3F3F3F</color>
+    <color name="darkBlue">#107896</color>
+    <color name="redRuby">#C02F1D</color>
+    <color name="lightViolet">#C9A2CA</color>
 </resources>

@@ -37,7 +37,5 @@ abstract class NoteDatabase : RoomDatabase() {
                 return instance
             }
         }
-
     }
-
 }
