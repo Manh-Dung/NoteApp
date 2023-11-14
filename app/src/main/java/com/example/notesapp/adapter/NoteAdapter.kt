@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notesapp.R
 import com.example.notesapp.data.Notes
+import java.io.File
 
 class NoteAdapter(private val onItemClick: (Notes) -> Unit) :
     RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
@@ -45,8 +46,13 @@ class NoteAdapter(private val onItemClick: (Notes) -> Unit) :
         if (note.image == "") {
             holder.imageItem.visibility = View.GONE
         } else {
-            holder.imageItem.setImageURI(note.image.toUri())
+            if (!File(note.image.toUri().path).exists()) {
+                holder.imageItem.visibility = View.GONE
+            } else {
+                holder.imageItem.setImageURI(note.image.toUri())
+            }
         }
+
 
         val colorDrawable = ColorDrawable(Color.parseColor(note.color))
         holder.backgroundItem.background = colorDrawable

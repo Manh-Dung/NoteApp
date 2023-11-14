@@ -27,6 +27,7 @@ import com.example.notesapp.data.FragmentViewModel
 import com.example.notesapp.data.NoteViewModel
 import com.example.notesapp.data.Notes
 import com.example.notesapp.databinding.FragmentNoteInteractBinding
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -132,8 +133,22 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
                 urlLayout.visibility = if (note.link.isNotEmpty()) View.VISIBLE else View.GONE
                 urlTxt.text = note.link
 
-                imageLayout.visibility = if (note.image.isNotEmpty()) View.VISIBLE else View.GONE
-                imageView.setImageURI(note.image.toUri())
+                if (note.image.isNotEmpty()) {
+                    imageLayout.visibility = View.VISIBLE
+                    if (!File(note.image.toUri().path).exists()) {
+                        imageLayout.visibility = View.GONE
+                    } else {
+                        imageView.setImageURI(note.image.toUri())
+                    }
+                } else {
+                    imageLayout.visibility = View.GONE
+                }
+                if (!File(note.image.toUri().path).exists()) {
+                    imageLayout.visibility = View.GONE
+                } else {
+                    imageView.setImageURI(note.image.toUri())
+                }
+
                 imageView.tag = note.image
             }
 

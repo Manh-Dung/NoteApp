@@ -91,10 +91,10 @@
         android:layout_marginBottom="15dp"
         android:backgroundTint="@color/darkBlue"
         android:elevation="5dp"
-        app:srcCompat="@drawable/ic_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:maxImageSize="30dp" />
+        app:maxImageSize="30dp"
+        app:srcCompat="@drawable/ic_add" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
