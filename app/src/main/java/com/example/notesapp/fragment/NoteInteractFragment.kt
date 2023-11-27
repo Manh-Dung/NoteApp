@@ -19,7 +19,6 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.notesapp.R
@@ -27,7 +26,8 @@ import com.example.notesapp.data.FragmentViewModel
 import com.example.notesapp.data.NoteViewModel
 import com.example.notesapp.data.Notes
 import com.example.notesapp.databinding.FragmentNoteInteractBinding
-import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -134,20 +134,25 @@ class NoteInteractFragment : Fragment(), NoteBottomSheet.ButtonClickListener {
                 urlTxt.text = note.link
 
                 if (note.image.isNotEmpty()) {
-                    imageLayout.visibility = View.VISIBLE
-                    if (!File(note.image.toUri().path).exists()) {
+                    val uri = Uri.parse(note.image)
+                    var inputStream: InputStream? = null
+                    try {
+                        inputStream = requireContext().contentResolver.openInputStream(uri)
+                        if (inputStream != null) {
+                            imageView.setImageURI(uri)
+                            imageLayout.visibility = View.VISIBLE
+                        } else {
+                            imageLayout.visibility = View.GONE
+                        }
+                    } catch (e: FileNotFoundException) {
                         imageLayout.visibility = View.GONE
-                    } else {
-                        imageView.setImageURI(note.image.toUri())
+                    } finally {
+                        inputStream?.close()
                     }
                 } else {
                     imageLayout.visibility = View.GONE
                 }
-                if (!File(note.image.toUri().path).exists()) {
-                    imageLayout.visibility = View.GONE
-                } else {
-                    imageView.setImageURI(note.image.toUri())
-                }
+
 
                 imageView.tag = note.image
             }

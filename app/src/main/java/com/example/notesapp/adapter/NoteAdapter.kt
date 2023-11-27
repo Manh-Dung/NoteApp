@@ -1,20 +1,25 @@
 package com.example.notesapp.adapter
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notesapp.R
 import com.example.notesapp.data.Notes
-import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStream
 
-class NoteAdapter(private val onItemClick: (Notes) -> Unit) :
+class NoteAdapter(
+    private val onItemClick: (Notes) -> Unit,
+    private val context: Context
+) :
     RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
     private var noteList = emptyList<Notes>()
 
@@ -46,10 +51,19 @@ class NoteAdapter(private val onItemClick: (Notes) -> Unit) :
         if (note.image == "") {
             holder.imageItem.visibility = View.GONE
         } else {
-            if (!File(note.image.toUri().path).exists()) {
+            val uri = Uri.parse(note.image)
+            var inputStream: InputStream? = null
+            try {
+                inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream != null) {
+                    holder.imageItem.setImageURI(uri)
+                } else {
+                    holder.imageItem.visibility = View.GONE
+                }
+            } catch (e: FileNotFoundException) {
                 holder.imageItem.visibility = View.GONE
-            } else {
-                holder.imageItem.setImageURI(note.image.toUri())
+            } finally {
+                inputStream?.close()
             }
         }
 

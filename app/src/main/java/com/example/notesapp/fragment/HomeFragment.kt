@@ -112,9 +112,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun noteInit(): NoteAdapter {
-        val adapter = NoteAdapter { note ->
-            updateFragment(note)
-        }
+        val adapter = NoteAdapter(
+            onItemClick = { note -> updateFragment(note) },
+            requireContext()
+        )
 
         binding.recyclerViewNote.setHasFixedSize(true)
         binding.recyclerViewNote.adapter = adapter
